@@ -10,7 +10,7 @@ Easily create and backup your archives.
 
 Archiver is a command line tool used to facilitate creation of production server backups and archiving. 
 
-**WARNING** : Currently archiver is in an alpha state and no production release is ready, so for now use it at your own risk. 
+**WARNING** : Archiver is in an alpha state, no production release is ready for now. 
 
 ## Available commands
 
