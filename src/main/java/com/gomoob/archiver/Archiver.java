@@ -103,21 +103,8 @@ public class Archiver {
             e.printStackTrace();
         }
 
-        /*
-         * if (args.length == 0) { printHelp(); return; } if (args[0].equals("download")) {
-         * download(amazonGlacierClient, awsCredentials, configuration, args[1]); } else if (args[0].equals("listjobs"))
-         * { listJobs(amazonGlacierClient, awsCredentials, configuration); } else if (args[0].equals("backup")) {
-         * backup(amazonGlacierClient, awsCredentials, configuration); } else if (args[0].equals("jobOutput")) {
-         * GetJobOutputRequest jobOutputRequest = new GetJobOutputRequest();
-         * jobOutputRequest.setVaultName(configuration.getProperty("vaultName")); jobOutputRequest.setJobId(args[1]);
-         * GetJobOutputResult jobOutputResult = amazonGlacierClient.getJobOutput(jobOutputRequest); OutputStream fos =
-         * null; InputStream jis = null; try { fos = new FileOutputStream(new File("jobOutput.txt")); jis =
-         * jobOutputResult.getBody(); byte[] buffer = new byte[1024]; int len; while ((len = jis.read(buffer)) != -1) {
-         * fos.write(buffer, 0, len); } } catch (FileNotFoundException e) { // TODO Auto-generated catch block
-         * e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch block e.printStackTrace(); }
-         * finally { if (fos != null) { try { fos.close(); } catch (IOException e) { // TODO Auto-generated catch block
-         * e.printStackTrace(); } } if (jis != null) { try { jis.close(); } catch (IOException e) { // TODO
-         * Auto-generated catch block e.printStackTrace(); } } } } else } else if (args[0].equals("archiveRetrieval")) {
+        /* else if (args[0].equals("jobOutput")) {
+         *  else if (args[0].equals("archiveRetrieval")) {
          * JobParameters jobParameters = new JobParameters(); jobParameters.setType("archive-retrieval");
          * jobParameters.setSNSTopic("arn:aws:sns:eu-west-1:967297338056:verygoodmoment-glacier-notification");
          * jobParameters.setArchiveId(args[1]); InitiateJobRequest initiateJobRequest = new InitiateJobRequest();

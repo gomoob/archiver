@@ -26,6 +26,7 @@ import com.amazonaws.services.glacier.transfer.UploadResult;
 import com.gomoob.archiver.component.AbstractCommand;
 import com.gomoob.archiver.component.glacier.command.archive.DownloadArchiveCommand;
 import com.gomoob.archiver.component.glacier.command.archive.UploadArchiveCommand;
+import com.gomoob.archiver.component.glacier.command.job.GetJobOutputCommand;
 import com.gomoob.archiver.component.glacier.command.job.InitiateVaultInventoryJobCommand;
 import com.gomoob.archiver.component.glacier.command.job.ListJobsCommand;
 import com.gomoob.archiver.component.glacier.command.vault.DescribeVaultCommand;
@@ -73,9 +74,9 @@ public class GlacierCommands extends AbstractCommand {
                 .withDescription("")
                 .create();
 
-        Option joboutputOption = OptionBuilder
-                .withLongOpt("jobOutput")
-                .withDescription("")
+        Option getJobOutputOption = OptionBuilder
+                .withLongOpt("get-job-output")
+                .withDescription("Gets the output of a job.")
                 .create();
         
         Option initiateVaultInventoryJobOption = OptionBuilder
@@ -99,11 +100,11 @@ public class GlacierCommands extends AbstractCommand {
         options.addOption(describeVaultOption);
         options.addOption(helpOption);
         options.addOption(downloadOption);
+        options.addOption(getJobOutputOption);
         options.addOption(initiateVaultInventoryJobOption);
         options.addOption(initiateArchiveRetrievalJobOption);
         options.addOption(listJobsOption);
         options.addOption(listVaultsOption);
-        options.addOption(joboutputOption);
         options.addOption(uploadArchiveOption);
 
         CommandLineParser commandLineParser = new PosixParser();
@@ -138,6 +139,14 @@ public class GlacierCommands extends AbstractCommand {
                 downloadCommand.setConfiguration(this.configuration);
                 downloadCommand.processCommand(Arrays.copyOfRange(args, 1, args.length));
 
+            }
+            
+            else if (commandLine.hasOption("get-job-output")) {
+                
+                GetJobOutputCommand getJobOutputCommand = new GetJobOutputCommand();
+                getJobOutputCommand.setConfiguration(this.configuration);
+                getJobOutputCommand.processCommand(Arrays.copyOfRange(args, 1, args.length));
+                
             }
 
             else if (commandLine.hasOption("initiate-vault-inventory-job")) {
