@@ -1,0 +1,50 @@
+{
+    "credentials" : [
+        {
+            "id" : "my-credentials",
+            "key" : "XXXXXXXX",
+            "secret" : "XXXXXXXX"
+        }
+    ],
+    "stores" : [
+        {
+            "id" : "my-glacier-vault",
+            "type" : "glacier",
+            "credentials" : "my-credentials",
+            "additionalConfiguration" : {
+                "endpoint" : "https://glacier.us-east-1.amazonaws.com",
+                "vaultName" : "vault-name"
+            }
+        }
+    ],
+    "archives" : [
+        {
+            "id" : "file_set_1",
+            "cwd" : "src/test/resources/files/file_set_1",
+            "dst" : "file_set_1.zip",
+            "src" : "**/*",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive2",
+            "cwd" : "d/e/f",
+            "dst" : "archive2.zip",
+            "src" : "y/directory2",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive3",
+            "cwd" : "g/h/i",
+            "dst" : "archive3.zip",
+            "src" : "z/**/*.txt",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive4",
+            "cwd" : "k/l/m",
+            "dst" : "archive4.zip",
+            "src" : [ "**/*.png", "**/*.gif"],
+            "type" : "zip"
+        }
+    ]
+}

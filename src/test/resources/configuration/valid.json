@@ -1,0 +1,69 @@
+{
+    "credentials" : [
+        {
+            "id" : "credentials1",
+            "key" : "AAAAAA",
+            "secret" : "BBBBBB"
+        },
+        {
+            "id" : "credentials2",
+            "key" : "CCCCCC",
+            "secret" : "DDDDDD"
+        },
+        {
+            "id" : "credentials3",
+            "key" : "EEEEEE",
+            "secret" : "FFFFFF"
+        }
+    ],
+    "stores" : [
+        {
+            "id" : "store1",
+            "type" : "glacier",
+            "credentials" : "credentials1",
+            "additionalConfiguration" : {
+                "endpoint" : "https://glacier.eu-west-1.amazonaws.com",
+                "vaultName" : "VAULT_NAME_1"
+            }
+        },
+        {
+            "id" : "store2",
+            "type" : "glacier",
+            "credentials" : "credentials2",
+            "additionalConfiguration" : {
+                "endpoint" : "https://glacier.eu-west-1.amazonaws.com",
+                "vaultName" : "VAULT_NAME_2"
+            }
+        }
+    ],
+    "archives" : [
+        {
+            "id" : "archive1",
+            "cwd" : "a/b/c",
+            "dst" : "archive1.zip",
+            "src" : "x/directory1",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive2",
+            "cwd" : "d/e/f",
+            "dst" : "archive2.zip",
+            "src" : "y/directory2",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive3",
+            "cwd" : "g/h/i",
+            "dst" : "archive3.zip",
+            "src" : "z/**/*.txt",
+            "type" : "zip"
+        },
+        {
+            "id" : "archive4",
+            "cwd" : "k/l/m",
+            "dst" : "archive4.zip",
+            "src" : [ "**/*.png", "**/*.gif"],
+            "type" : "zip"
+        }
+    ]
+}
