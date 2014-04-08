@@ -5,7 +5,7 @@ about Amazon Glacier please read the official documentation : http://docs.aws.am
 
 # Available commands
 
-## --describe-vault
+## `--describe-vault`
 
 ### Display the help
 
@@ -36,7 +36,44 @@ usage: archiver --glacier --describe-vault
 
 TODO
 
-## --help
+## `--get-job-output`
+
+### Display the help
+
+`archiver --glacier --get-job-output` or `archiver --glacier --get-job-output --help`
+
+```
+```
+
+### Print a job output using an archiver store
+
+`archiver --glacier  --get-job-output --a-store-id=glacier-archiver-vault --job-id=63ZEMSWIr2-4VyHUoJ3vQiBupP_tvoWAs-M-pMqyy52_9sehtSictM_h5GKPRGVorZsxbB4giFffFjf_yB99vz7NQV-G`
+
+```
+{
+  "VaultARN": "arn:aws:glacier:us-east-1:922196456965:vaults/my-vault",
+  "InventoryDate": "2014-04-08T01:34:56Z",
+  "ArchiveList": [
+    {
+      "ArchiveId": "R_9yqIxFEruUeyWb4XnkPN0piefG477nr726WlE2wXFtFDJ1TM1gAKbP-rU-kVGuaArSLfSIKRiHH41vnNOMCYmazvts04b1YgbvQ37sODPop9HK5xAIhYTdqMebuZr626D2Pw9uOw",
+      "SHA256TreeHash": "9a1ba5f11d979428bfcbe8d0159227ad03332fca4b234ce116c48af8d9efe9e6",
+      "CreationDate": "2014-04-07T17:45:45Z",
+      "ArchiveDescription": "my-archive",
+      "Size": 125
+    },
+    {
+      "ArchiveId": "JjBVy6zT-MHvnAnPNBHBkRAIXf8EL-CR1RDA5R6Estq_rg08h7EvZLbKcO8uHQ3tSYLxwV7aiakGXGe3iD8cTNdNXiDlwcQ5aACXVR8csdnMDPhOHrvDMhum9OObtZ8rAwgHHNt93g",
+      "SHA256TreeHash": "889a93becb6fbfdf3b84a0ff288bc6a88f26090bbbb35ca0f4b2ffd0cf5e024b",
+      "CreationDate": "2014-04-07T17:47:29Z",
+      "ArchiveDescription": "my-archive",
+      "Size": 125
+    }
+  ]
+}
+
+```
+
+## `--help`
 
 `archiver --glacier` or `archiver --glacier --help`
 
