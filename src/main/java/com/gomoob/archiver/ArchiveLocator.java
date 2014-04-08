@@ -26,6 +26,17 @@ import com.gomoob.archiver.configuration.Configuration;
 import com.gomoob.archiver.configuration.archive.Archive;
 import com.gomoob.archiver.configuration.archive.Type;
 
+/**
+ * Class which is used to locate archives, this class has multiple responsibilities :
+ * <ul>
+ * <li>Determine how to locate are archive, using an 'archive' configuration or using a path to a file which is
+ * provided.</li>
+ * <li>If the archive has to be located using an 'archive' configuration then determine how to create / build the
+ * archive.</li>
+ * </ul>
+ * 
+ * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+ */
 public class ArchiveLocator {
 
     /**
@@ -55,9 +66,9 @@ public class ArchiveLocator {
      * builder.</li>
      * </ul>
      * 
-     * @param commandLine
-     * @return
-     * @throws IOException
+     * @param commandLine TODO: A DOCUMENTER
+     * @return TODO: A DOCUMENTER
+     * @throws IOException TODO: A DOCUMENTER
      */
     public File locate(CommandLine commandLine) throws IOException {
 
@@ -73,6 +84,13 @@ public class ArchiveLocator {
 
         // Build the archive path using the identifier of an archive described in an archiver configuration file
         else if (commandLine.hasOption("a-archive-id")) {
+
+            // A configuration must have been associated to the builder
+            if (this.configuration == null) {
+
+                throw new IllegalStateException("No configuration is attached to the archive locator !");
+
+            }
 
             String archiveId = commandLine.getOptionValue("a-archive-id");
             Archive archive = this.configuration.findArchiveById(archiveId);
