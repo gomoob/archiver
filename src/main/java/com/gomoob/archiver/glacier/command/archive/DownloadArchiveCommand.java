@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command.archive;
+package com.gomoob.archiver.glacier.command.archive;
 
 import java.io.File;
 import java.util.Properties;
@@ -27,7 +27,7 @@ import org.apache.commons.cli.Options;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.transfer.ArchiveTransferManager;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
  * Command used to download an Amazon Glacier archive.

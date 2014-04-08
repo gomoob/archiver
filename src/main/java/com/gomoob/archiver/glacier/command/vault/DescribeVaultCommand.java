@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command.vault;
+package com.gomoob.archiver.glacier.command.vault;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -22,7 +22,7 @@ import org.json.JSONObject;
 
 import com.amazonaws.services.glacier.model.DescribeVaultRequest;
 import com.amazonaws.services.glacier.model.DescribeVaultResult;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
  * Command class used to retrieve informations about an Amazon Glacier Vault.
@@ -37,7 +37,7 @@ public class DescribeVaultCommand extends AbstractGlacierCommand {
      */
     @Override
     protected void doConfigureOptions(Options options) {
-        
+
         options.addOption(this.createHelpOption());
         options.addOption(this.createAStoreIdOption());
 

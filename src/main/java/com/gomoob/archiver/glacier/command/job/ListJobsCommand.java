@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command.job;
+package com.gomoob.archiver.glacier.command.job;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import com.amazonaws.services.glacier.model.GlacierJobDescription;
 import com.amazonaws.services.glacier.model.ListJobsRequest;
 import com.amazonaws.services.glacier.model.ListJobsResult;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 public class ListJobsCommand extends AbstractGlacierCommand {
 

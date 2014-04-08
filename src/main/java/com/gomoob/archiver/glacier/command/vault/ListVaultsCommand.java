@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command.vault;
+package com.gomoob.archiver.glacier.command.vault;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ import org.json.JSONObject;
 import com.amazonaws.services.glacier.model.DescribeVaultOutput;
 import com.amazonaws.services.glacier.model.ListVaultsRequest;
 import com.amazonaws.services.glacier.model.ListVaultsResult;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
  * Command class used to list vaults owned by the calling user's account.
@@ -40,15 +40,15 @@ public class ListVaultsCommand extends AbstractGlacierCommand {
      */
     @Override
     protected void doConfigureOptions(Options options) {
-        
+
         options.addOption(this.createACredentialsIdOption());
-        
+
     }
-    
+
     protected String doGetHelpHeader() {
-        
+
         return "List all vaults in a specified region.";
-        
+
     }
 
     /**

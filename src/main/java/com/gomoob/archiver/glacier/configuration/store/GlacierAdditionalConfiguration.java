@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.configuration.store;
+package com.gomoob.archiver.glacier.configuration.store;
 
 import com.gomoob.archiver.configuration.store.IAdditionalConfiguration;
 

@@ -13,15 +13,15 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command;
+package com.gomoob.archiver.glacier.command;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
-import com.gomoob.archiver.component.AbstractCommand;
-import com.gomoob.archiver.component.glacier.configuration.store.GlacierAdditionalConfiguration;
 import com.gomoob.archiver.configuration.credentials.Credentials;
 import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.glacier.configuration.store.GlacierAdditionalConfiguration;
+import com.gomoob.archiver.plugin.impl.AbstractCommand;
 
 /**
  * Abstract class common to all Glacier commands.
@@ -151,7 +151,6 @@ public abstract class AbstractGlacierCommand extends AbstractCommand {
             endpoint = ((GlacierAdditionalConfiguration) store.getAdditionalConfiguration()).getEndpoint();
 
         }
-        
 
         return endpoint;
 

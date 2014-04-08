@@ -1,4 +1,4 @@
-package com.gomoob.archiver.component.glacier.command.multipartupload;
+package com.gomoob.archiver.glacier.command.multipartupload;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -22,7 +22,7 @@ import com.amazonaws.services.glacier.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.glacier.model.UploadMultipartPartRequest;
 import com.amazonaws.services.glacier.model.UploadMultipartPartResult;
 import com.amazonaws.util.BinaryUtils;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
  * Glacier command used to perform multipart uploads.
@@ -30,11 +30,6 @@ import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
 public class MultipartUploadCommand extends AbstractGlacierCommand {
-
-    /**
-     * The archive file to upload.
-     */
-    private File archiveFile;
 
     /**
      * The default part size used for multipart uploads (1MB).
@@ -63,9 +58,14 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
             // The upload is performed using the archiver configuration
             if (commandLine.hasOption("a-store-id") || commandLine.hasOption("a-archive-id")) {
 
-                String uploadId = this.initiateMultipartUpload(this.getVaultName(), "Archive description",
-                        this.getPartSize());
-                String checksum = this.uploadParts(this.getVaultName(), uploadId);
+                //@formatter:off
+                String uploadId = this.initiateMultipartUpload(
+                    "Archive description",
+                    this.getPartSize()
+                );
+
+                String checksum = this.uploadParts(uploadId);
+                 this.completeMultiPartUpload(uploadId, checksum);
                 // @formatter:on
 
             }
@@ -86,44 +86,22 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
 
     }
 
-    private String CompleteMultiPartUpload(String uploadId, String checksum) throws NoSuchAlgorithmException,
+    private String completeMultiPartUpload(String uploadId, String checksum) throws NoSuchAlgorithmException,
             IOException {
 
         File file = this.getArchiveFile();
 
+        //@formatter:off
         CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest()
-                .withVaultName(this.getVaultName()).withUploadId(uploadId).withChecksum(checksum)
+                .withVaultName(this.getVaultName())
+                .withUploadId(uploadId)
+                .withChecksum(checksum)
                 .withArchiveSize(String.valueOf(file.length()));
+        //@formatter:on
 
         CompleteMultipartUploadResult compResult = this.getAmazonGlacierClient().completeMultipartUpload(compRequest);
+
         return compResult.getLocation();
-
-    }
-
-    /**
-     * Gets the archive file to upload.
-     * 
-     * @return the archive file to upload.
-     */
-    private File getArchiveFile() {
-
-        // If the archive file has not already been located we locate it
-        if (this.archiveFile == null) {
-
-            try {
-
-                this.archiveFile = this.getArchiveLocator().locate(this.commandLine);
-
-            } catch (IOException e1) {
-
-                // TODO Auto-generated catch block
-                e1.printStackTrace();
-
-            }
-
-        }
-
-        return this.archiveFile;
 
     }
 
@@ -141,16 +119,15 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
     /**
      * Function used to initiate a new Multipart Upload.
      * 
-     * @param vaultName the name of the Amazon Glacier vault where to upload an archive.
      * @param archiveDescription the description of the archive to upload.
      * @param partSize the part size of the parts to upload.
      * @return the Amazon Glacier identifier of the archive to upload.
      */
-    private String initiateMultipartUpload(String vaultName, String archiveDescription, String partSize) {
+    private String initiateMultipartUpload(String archiveDescription, String partSize) {
 
         //@formatter:off
         InitiateMultipartUploadRequest initiateMultipartUploadRequest = new InitiateMultipartUploadRequest()
-            .withVaultName(vaultName)
+            .withVaultName(this.getVaultName())
             .withArchiveDescription(archiveDescription)
             .withPartSize(partSize);
         //@formatter:on
@@ -165,8 +142,8 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
 
     }
 
-    private String uploadParts(String vaultName, String uploadId) throws AmazonServiceException,
-            NoSuchAlgorithmException, AmazonClientException, IOException {
+    private String uploadParts(String uploadId) throws AmazonServiceException, NoSuchAlgorithmException,
+            AmazonClientException, IOException {
 
         int filePosition = 0;
         long currentPosition = 0;
@@ -181,21 +158,25 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
         int read = 0;
 
         while (currentPosition < archivefile.length()) {
+
             read = fileToUpload.read(buffer, filePosition, buffer.length);
+
             if (read == -1) {
                 break;
             }
+
             byte[] bytesRead = Arrays.copyOf(buffer, read);
 
             contentRange = String.format("bytes %s-%s/*", currentPosition, currentPosition + read - 1);
             String checksum = TreeHashGenerator.calculateTreeHash(new ByteArrayInputStream(bytesRead));
             byte[] binaryChecksum = BinaryUtils.fromHex(checksum);
             binaryChecksums.add(binaryChecksum);
+
             System.out.println(contentRange);
 
             //@formatter:off
             UploadMultipartPartRequest partRequest = new UploadMultipartPartRequest()
-                .withVaultName(vaultName)
+                .withVaultName(this.getVaultName())
                 .withBody(new ByteArrayInputStream(bytesRead))
                 .withChecksum(checksum)
                 .withRange(contentRange)
@@ -203,11 +184,14 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
             //formatter:on
             
             UploadMultipartPartResult partResult = this.getAmazonGlacierClient().uploadMultipartPart(partRequest);
+
             System.out.println("Part uploaded, checksum: " + partResult.getChecksum());
 
             currentPosition = currentPosition + read;
 
         }
+        
+        fileToUpload.close();
         
         String checksum = TreeHashGenerator.calculateTreeHash(binaryChecksums);
         

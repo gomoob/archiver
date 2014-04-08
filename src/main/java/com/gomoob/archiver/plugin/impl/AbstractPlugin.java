@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component;
+package com.gomoob.archiver.plugin.impl;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,6 +21,9 @@ import java.util.Map;
 
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+
+import com.gomoob.archiver.plugin.ICommand;
+import com.gomoob.archiver.plugin.IPlugin;
 
 /**
  * Abstract class common to all the archiver commands.

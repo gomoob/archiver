@@ -30,10 +30,10 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import com.gomoob.archiver.component.CommandException;
-import com.gomoob.archiver.component.glacier.GlacierPlugin;
 import com.gomoob.archiver.configuration.Configuration;
 import com.gomoob.archiver.configuration.ConfigurationParser;
+import com.gomoob.archiver.glacier.GlacierPlugin;
+import com.gomoob.archiver.plugin.impl.CommandException;
 
 /**
  * Main entry of the GOMOOB AWS Glacier tool.

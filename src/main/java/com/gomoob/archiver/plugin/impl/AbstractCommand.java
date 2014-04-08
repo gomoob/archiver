@@ -13,7 +13,10 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component;
+package com.gomoob.archiver.plugin.impl;
+
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -24,13 +27,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import com.gomoob.archiver.ArchiveLocator;
-import com.gomoob.archiver.compressor.ICompressor;
-import com.gomoob.archiver.compressor.impl.ZipCompressor;
 import com.gomoob.archiver.configuration.Configuration;
-import com.gomoob.archiver.configuration.archive.Type;
 import com.gomoob.archiver.configuration.credentials.Credentials;
 import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.plugin.ICommand;
+import com.gomoob.archiver.plugin.IPlugin;
 
 /**
  * Abstract class common to all the archiver commands.
@@ -39,18 +40,26 @@ import com.gomoob.archiver.configuration.store.Store;
  */
 public abstract class AbstractCommand extends AbstractPluginOrCommand implements ICommand {
 
+    /**
+     * The archive file to upload.
+     */
+    private File archiveFile;
+
+    /**
+     * The Command Line which have been created.
+     */
     protected CommandLine commandLine;
 
     /**
      * The configured credentials.
      */
     private Credentials credentials;
-    
+
     /**
      * The name of the command.
      */
     private String name;
-    
+
     /**
      * The plugin this command is linked to.
      */
@@ -61,43 +70,43 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
      */
     @Override
     public String getName() {
-        
+
         return this.name;
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
     @Override
     public IPlugin getPlugin() {
-        
+
         return this.plugin;
-        
+
     }
-    
+
     /**
      * Sets the name of the command.
      * 
      * @param name the name of the command.
      */
     void setName(String name) {
-        
+
         this.name = name;
-        
+
     }
-    
+
     /**
      * Sets the plugin this command is linked to.
      * 
      * @param plugin the plugin this command is linked to.
      */
     void setPlugin(IPlugin plugin) {
-        
+
         this.plugin = plugin;
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -126,7 +135,7 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
             throw new CommandException("", parseException);
 
         }
-        
+
         // If no arguments are provided or the '--help' option is provided we display the help of the plugin
         if (args.length == 0 || this.commandLine.hasOption("help")) {
 
@@ -213,20 +222,6 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
 
     }
 
-    public ICompressor getCompressor(Type type) {
-
-        ICompressor compressor = null;
-
-        if (type == Type.ZIP) {
-
-            compressor = new ZipCompressor();
-
-        }
-
-        return compressor;
-
-    }
-
     /**
      * Gets the archiver configuration which is currently in use.
      * 
@@ -235,6 +230,37 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
     protected Configuration getConfiguration() {
 
         return this.configuration;
+
+    }
+    
+    /**
+     * Gets an archive file which have been configured with the Archiver configuration or the command line parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically locate or 
+     * create the associated archive file.
+     * </p>
+     * 
+     * @return the archive file.
+     */
+    protected File getArchiveFile() {
+
+        // If the archive file has not already been located we locate it
+        if (this.archiveFile == null) {
+
+            try {
+
+                this.archiveFile = this.getArchiveLocator().locate(this.commandLine);
+
+            } catch (IOException e1) {
+
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+
+            }
+
+        }
+
+        return this.archiveFile;
 
     }
 
@@ -386,16 +412,6 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
         }
 
         return this.credentials;
-
-    }
-
-    protected CommandLine parseCommandLine(Options options, String[] args) throws ParseException {
-
-        CommandLineParser commandLineParser = new PosixParser();
-
-        this.commandLine = commandLineParser.parse(options, args);
-
-        return this.commandLine;
 
     }
 

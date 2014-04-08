@@ -1,4 +1,4 @@
-package com.gomoob.archiver.component;
+package com.gomoob.archiver.plugin.impl;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;

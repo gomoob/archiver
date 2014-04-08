@@ -15,7 +15,7 @@ Archiver is a command line tool used to facilitate creation of production server
 * [Install](docs/install.md "Install")
 * [Configure](docs/configure.md "Configure")
 * Plugins 
-  * [Amazon Glacier plugin](docs/plugins.glacier.md "Amazon Glacier Plugin")
+  * [Amazon Glacier plugin](docs/plugins-glacier.md "Amazon Glacier Plugin")
 
 ## Available commands
 

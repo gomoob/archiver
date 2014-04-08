@@ -28,7 +28,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.gomoob.archiver.component.glacier.configuration.store.GlacierAdditionalConfigurationParser;
 import com.gomoob.archiver.configuration.archive.Archive;
 import com.gomoob.archiver.configuration.archive.Src;
 import com.gomoob.archiver.configuration.archive.Type;
@@ -36,6 +35,7 @@ import com.gomoob.archiver.configuration.credentials.Credentials;
 import com.gomoob.archiver.configuration.store.IAdditionalConfiguration;
 import com.gomoob.archiver.configuration.store.IAdditionalConfigurationParser;
 import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.glacier.configuration.store.GlacierAdditionalConfigurationParser;
 
 /**
  * Parser used to parse an archiver configuration file.
@@ -48,7 +48,7 @@ public class ConfigurationParser {
      * A map which maps credentials identifiers to credentials.
      */
     private Map<String, Credentials> credentialsMap = new HashMap<String, Credentials>();
-    
+
     public void parse(File configurationFile) {
 
     }
@@ -85,7 +85,7 @@ public class ConfigurationParser {
         // Parse the 'credentials'
         List<Credentials> credentialsList = this.parseCredentialsArray(jsonConfiguration);
         configuration.setCredentialsList(credentialsList);
-        
+
         // Parse the 'stores'
         List<Store> stores = this.parseStores(jsonConfiguration);
         configuration.setStores(stores);
@@ -121,7 +121,7 @@ public class ConfigurationParser {
             throw new ParseException("The 'dst' attribute is 'null' or not provided !", jsonException);
 
         }
-        
+
         try {
 
             archive.setId(archiveJsonObject.getString("id"));
@@ -252,7 +252,7 @@ public class ConfigurationParser {
             throw new ParseException("The 'id' attribute is 'null' or not provided !", jsonException);
 
         }
-        
+
         try {
 
             credentials.setKey(credentialsJsonObject.getString("key"));
@@ -281,7 +281,7 @@ public class ConfigurationParser {
 
         // Clears the credentials map
         this.credentialsMap.clear();
-        
+
         List<Credentials> credentialsArray = new ArrayList<Credentials>();
 
         // If an 'credentials' declaration is available
@@ -307,7 +307,7 @@ public class ConfigurationParser {
                 }
 
                 credentialsArray.add(credentials);
-                
+
                 this.credentialsMap.put(credentials.getId(), credentials);
 
             }
@@ -322,28 +322,28 @@ public class ConfigurationParser {
 
         Store store = new Store();
 
-        if(storeJsonObject.has("credentials")) {
-            
+        if (storeJsonObject.has("credentials")) {
+
             Object credentialsObject = storeJsonObject.get("credentials");
 
-            if(credentialsObject instanceof String) {
-                
+            if (credentialsObject instanceof String) {
+
                 Credentials credentials = this.credentialsMap.get(credentialsObject);
-                
-                if(credentials == null) {
-                    
+
+                if (credentials == null) {
+
                     // TODO: Exception
-                    
+
                 }
-                
-                store.setCredentials(credentials);                
-            
+
+                store.setCredentials(credentials);
+
             } else {
-            
+
                 // TODO: Parsing de l'objet credentials...
-                
+
             }
-            
+
         }
 
         try {

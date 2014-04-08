@@ -22,10 +22,10 @@ import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-import com.gomoob.archiver.component.glacier.configuration.store.GlacierAdditionalConfiguration;
 import com.gomoob.archiver.configuration.archive.Archive;
 import com.gomoob.archiver.configuration.archive.Type;
 import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.glacier.configuration.store.GlacierAdditionalConfiguration;
 
 /**
  * Test case for the {@link ConfigurationParser} class.

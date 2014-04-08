@@ -1,4 +1,4 @@
-package com.gomoob.archiver.component;
+package com.gomoob.archiver.plugin.impl;
 
 public class CommandException extends Exception {
 

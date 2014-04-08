@@ -13,7 +13,9 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component;
+package com.gomoob.archiver.plugin;
+
+import com.gomoob.archiver.plugin.impl.CommandException;
 
 /**
  * Interface which defines an archiving plugin to be executed.

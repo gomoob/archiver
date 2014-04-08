@@ -13,7 +13,7 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier;
+package com.gomoob.archiver.glacier;
 
 import java.util.Map;
 
@@ -21,16 +21,16 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 
-import com.gomoob.archiver.component.AbstractPlugin;
-import com.gomoob.archiver.component.ICommand;
-import com.gomoob.archiver.component.glacier.command.archive.DownloadArchiveCommand;
-import com.gomoob.archiver.component.glacier.command.archive.PostArchiveCommand;
-import com.gomoob.archiver.component.glacier.command.job.GetJobOutputCommand;
-import com.gomoob.archiver.component.glacier.command.job.InitiateVaultInventoryJobCommand;
-import com.gomoob.archiver.component.glacier.command.job.ListJobsCommand;
-import com.gomoob.archiver.component.glacier.command.multipartupload.MultipartUploadCommand;
-import com.gomoob.archiver.component.glacier.command.vault.DescribeVaultCommand;
-import com.gomoob.archiver.component.glacier.command.vault.ListVaultsCommand;
+import com.gomoob.archiver.glacier.command.archive.DownloadArchiveCommand;
+import com.gomoob.archiver.glacier.command.archive.UploadArchiveCommand;
+import com.gomoob.archiver.glacier.command.job.GetJobOutputCommand;
+import com.gomoob.archiver.glacier.command.job.InitiateVaultInventoryJobCommand;
+import com.gomoob.archiver.glacier.command.job.ListJobsCommand;
+import com.gomoob.archiver.glacier.command.multipartupload.MultipartUploadCommand;
+import com.gomoob.archiver.glacier.command.vault.DescribeVaultCommand;
+import com.gomoob.archiver.glacier.command.vault.ListVaultsCommand;
+import com.gomoob.archiver.plugin.ICommand;
+import com.gomoob.archiver.plugin.impl.AbstractPlugin;
 
 public class GlacierPlugin extends AbstractPlugin {
 
@@ -114,7 +114,7 @@ public class GlacierPlugin extends AbstractPlugin {
         commands.put("list-jobs", ListJobsCommand.class);
         commands.put("list-vaults", ListVaultsCommand.class);
         commands.put("multipart-upload", MultipartUploadCommand.class);
-        commands.put("upload-archive", PostArchiveCommand.class);
+        commands.put("upload-archive", UploadArchiveCommand.class);
 
     }
 

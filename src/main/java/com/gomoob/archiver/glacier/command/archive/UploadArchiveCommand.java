@@ -13,27 +13,20 @@
  */
 
 //@formatter:on
-package com.gomoob.archiver.component.glacier.command.archive;
+package com.gomoob.archiver.glacier.command.archive;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.transfer.ArchiveTransferManager;
 import com.amazonaws.services.glacier.transfer.UploadResult;
-import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
-import com.gomoob.archiver.component.glacier.configuration.store.GlacierAdditionalConfiguration;
-import com.gomoob.archiver.configuration.store.IAdditionalConfiguration;
-import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
  * Command used to post / upload an archive into an Amazon Glacier vault in a single operation.
@@ -44,7 +37,7 @@ import com.gomoob.archiver.configuration.store.Store;
  * 
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
-public class PostArchiveCommand extends AbstractGlacierCommand {
+public class UploadArchiveCommand extends AbstractGlacierCommand {
 
     /**
      * {@inheritDoc}
@@ -54,9 +47,9 @@ public class PostArchiveCommand extends AbstractGlacierCommand {
 
         options.addOption(this.createAArchiveIdOption());
         options.addOption(this.createAStoreIdOption());
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      */
