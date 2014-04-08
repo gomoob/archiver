@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.compress.archivers.ArchiveOutputStream;
@@ -65,6 +66,24 @@ public class ZipCompressor extends AbstractCompressor {
         // TODO: Créer un fichier temporaire
         ArchiveOutputStream aos = new ZipArchiveOutputStream(archiveFile);
 
+        System.out.println("Number of files to process : '" + filePaths.length + "'.");
+
+        double initialeSize = 0;
+        
+        // Computes the total size of the files to archive
+        for (int i = 0; i < filePaths.length; ++i) {
+            
+            File file = new File(FilenameUtils.concat(cwdDir.getAbsolutePath(), filePaths[i]));
+            initialeSize += (double) file.length() / 1073741824.0;
+            
+        }
+        
+        System.out.println("Size of data to compress : " + initialeSize + " Go");
+        
+        double goWritten = 0;
+        double percentage = 0.0;
+        int roundedPercentage = 0;
+
         // For each file to inject into the archive
         for (int i = 0; i < filePaths.length; i++) {
 
@@ -82,12 +101,27 @@ public class ZipCompressor extends AbstractCompressor {
 
                 aos.write(buffer, 0, nbRead);
 
+                // Updates the number of Gigabytes written
+                goWritten += (1024.0 / 1073741824.0);
+                
+                // Updates the percentage
+                percentage = goWritten / initialeSize * 100;
+
+                // If the rounded percentage is greater than the previous rounded percentage we display the updated 
+                // percentage
+                if((int) percentage > roundedPercentage) {
+
+                    roundedPercentage = (int) percentage;
+                    System.out.println(new Date().toString() + " - " + roundedPercentage + "%");
+                    
+                }
+
             }
 
             aos.closeArchiveEntry();
 
             is.close();
-
+            
         }
 
         aos.close();
