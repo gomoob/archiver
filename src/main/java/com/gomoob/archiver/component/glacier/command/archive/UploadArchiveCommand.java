@@ -1,3 +1,18 @@
+//@formatter:off
+
+/**
+ * (C) Copyright 2014, GOMOOB SARL (http://gomoob.com), All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General 
+ * Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option) 
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more 
+ * details. You should have received a copy of the GNU Lesser General Public License along with this library.
+ */
+
+//@formatter:on
 package com.gomoob.archiver.component.glacier.command.archive;
 
 import java.io.File;
@@ -5,13 +20,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -42,12 +53,10 @@ public class UploadArchiveCommand extends AbstractGlacierCommand {
         options.addOption(this.createAArchiveIdOption());
         options.addOption(this.createAStoreIdOption());
         options.addOption(this.createHelpOption());
-        
-        CommandLineParser commandLineParser = new PosixParser();
 
         try {
 
-            CommandLine commandLine = commandLineParser.parse(options, args);
+            CommandLine commandLine = this.parseCommandLine(options, args);
 
             if (commandLine.getOptions().length == 1 && commandLine.hasOption("help")) {
 
@@ -64,31 +73,34 @@ public class UploadArchiveCommand extends AbstractGlacierCommand {
 
                 Archive archive = this.configuration.findArchiveById(archiveId);
                 Store store = this.configuration.findStoreById(storeId);
-                
+
                 File zippedArchive = null;
                 ICompressor compressor = this.getCompressor(archive.getType());
-                
-                try {
-                    
-                    zippedArchive = compressor.compress(archive);
-                    
-                } catch (IOException ioException) {
-                    
-                    // TODO Auto-generated catch block
-                    ioException.printStackTrace();
-                
-                }
-                
-                GlacierAdditionalConfiguration gac = (GlacierAdditionalConfiguration) store.getAdditionalConfiguration();
-                
-                AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(store);
-                AWSCredentials awsCredentials = this.createAWSCredentials(store.getCredentials());
-                ArchiveTransferManager archiveTransferManager = new ArchiveTransferManager(amazonGlacierClient, awsCredentials);
 
                 try {
-                    
-                    UploadResult uploadResult = archiveTransferManager.upload(gac.getVaultName(), "Mon archive", zippedArchive);
-                    
+
+                    zippedArchive = compressor.compress(archive);
+
+                } catch (IOException ioException) {
+
+                    // TODO Auto-generated catch block
+                    ioException.printStackTrace();
+
+                }
+
+                GlacierAdditionalConfiguration gac = (GlacierAdditionalConfiguration) store
+                        .getAdditionalConfiguration();
+
+                AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(store);
+                AWSCredentials awsCredentials = this.createAWSCredentials(store.getCredentials());
+                ArchiveTransferManager archiveTransferManager = new ArchiveTransferManager(amazonGlacierClient,
+                        awsCredentials);
+
+                try {
+
+                    UploadResult uploadResult = archiveTransferManager.upload(gac.getVaultName(), "Mon archive",
+                            zippedArchive);
+
                     System.out.println(uploadResult.getArchiveId());
 
                 } catch (AmazonServiceException e) {
@@ -108,6 +120,67 @@ public class UploadArchiveCommand extends AbstractGlacierCommand {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+    }
+
+    /**
+     * Gets the archive file to upload.
+     * 
+     * @return the archive file to upload.
+     * @throws IOException TODO: A documenter
+     */
+    private File getArchivePath() throws IOException {
+
+        File archiveFile = null;
+        
+        // Providing both the 'a-archive-id' and 'archive-file' options is forbidden
+        if (commandLine.hasOption("a-archive-id") && commandLine.hasOption("archive-file")) {
+
+            throw new IllegalArgumentException(
+                    "The options 'a-archive-id' and 'archive-file' cannot be provided together !");
+
+        }
+
+        // Build the archive path using the identifier of an archive described in an archiver configuration file
+        else if (commandLine.hasOption("a-archive-id")) {
+
+            String archiveId = commandLine.getOptionValue("a-archive-id");
+            Archive archive = this.configuration.findArchiveById(archiveId);
+
+            // No archive configuration has been found for the provided 'a-archive-id' parameter
+            if (archive == null) {
+
+                throw new IllegalArgumentException(
+                        "No archive configuration has been found for the provided 'a-archive-id="
+                                + commandLine.getOptionValue("a-archive-id") + "' parameter !");
+
+            }
+            
+            ICompressor compressor = this.getCompressor(archive.getType());
+            archiveFile = compressor.compress(archive);
+
+        }
+
+        // Build the archive path using an archive file path provided at command line
+        else if (commandLine.hasOption("archive-file")) {
+
+            archiveFile = new File(commandLine.getOptionValue("archive-file"));
+
+            // The archive file must exist
+            if (!archiveFile.exists()) {
+
+                throw new IOException("The file '" + archiveFile.getAbsolutePath() + "' does not exist !");
+
+            }
+
+        }
+
+        // Nothing allows us to create an archive file path
+        else {
+
+        }
+
+        return archiveFile;
 
     }
 

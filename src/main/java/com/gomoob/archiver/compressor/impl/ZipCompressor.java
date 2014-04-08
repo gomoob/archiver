@@ -1,4 +1,19 @@
-package com.gomoob.archiver.compressor;
+//@formatter:off
+
+/**
+ * (C) Copyright 2014, GOMOOB SARL (http://gomoob.com), All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General 
+ * Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option) 
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more 
+ * details. You should have received a copy of the GNU Lesser General Public License along with this library.
+ */
+
+//@formatter:on
+package com.gomoob.archiver.compressor.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +29,11 @@ import org.apache.commons.io.FilenameUtils;
 
 import com.gomoob.archiver.configuration.archive.Archive;
 
+/**
+ * Compressor used to create ZIP files.
+ * 
+ * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+ */
 public class ZipCompressor extends AbstractCompressor {
 
     /**
@@ -28,7 +48,7 @@ public class ZipCompressor extends AbstractCompressor {
         // The 'cwd' directory must exist
         if (!cwdDir.exists()) {
 
-            throw new IOException("The 'dst' directory '" + cwdDir.getAbsolutePath() + "' does not exist !");
+            throw new IOException("The 'cwd' directory '" + cwdDir.getAbsolutePath() + "' does not exist !");
 
         }
 

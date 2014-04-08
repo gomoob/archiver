@@ -1,4 +1,19 @@
-package com.gomoob.archiver.compressor;
+//@formatter:off
+
+/**
+ * (C) Copyright 2014, GOMOOB SARL (http://gomoob.com), All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General 
+ * Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option) 
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more 
+ * details. You should have received a copy of the GNU Lesser General Public License along with this library.
+ */
+
+//@formatter:on
+package com.gomoob.archiver.compressor.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,9 +22,15 @@ import java.util.List;
 
 import org.apache.tools.ant.DirectoryScanner;
 
+import com.gomoob.archiver.compressor.ICompressor;
 import com.gomoob.archiver.configuration.archive.Archive;
 import com.gomoob.archiver.configuration.archive.Src;
 
+/**
+ * Abstract class common to all compressor components.
+ * 
+ * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
+ */
 public abstract class AbstractCompressor implements ICompressor {
 
     protected abstract File doCompress(Archive archive, String[] filePaths) throws IOException;

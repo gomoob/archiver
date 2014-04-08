@@ -1,6 +1,18 @@
+//@formatter:off
+
 /**
- * Copyright 2014 SARL GOMOOB. All rights reserved.
+ * (C) Copyright 2014, GOMOOB SARL (http://gomoob.com), All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General 
+ * Public License as published by the Free Software Foundation; either version 3.0 of the License, or (at your option) 
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied 
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more 
+ * details. You should have received a copy of the GNU Lesser General Public License along with this library.
  */
+
+//@formatter:on
 package com.gomoob.archiver;
 
 import java.io.File;
@@ -145,29 +157,6 @@ public class Archiver {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        /* else if (args[0].equals("jobOutput")) {
-         *  else if (args[0].equals("archiveRetrieval")) {
-         * JobParameters jobParameters = new JobParameters(); jobParameters.setType("archive-retrieval");
-         * jobParameters.setSNSTopic("arn:aws:sns:eu-west-1:967297338056:verygoodmoment-glacier-notification");
-         * jobParameters.setArchiveId(args[1]); InitiateJobRequest initiateJobRequest = new InitiateJobRequest();
-         * initiateJobRequest.setVaultName(configuration.getProperty("vaultName"));
-         * initiateJobRequest.setJobParameters(jobParameters); InitiateJobResult initiateJobResult =
-         * amazonGlacierClient.initiateJob(initiateJobRequest); String jobId = initiateJobResult.getJobId();
-         * System.out.println("Job id : " + jobId); } else { printHelp(); }
-         */
-
-    }
-
-    /**
-	 * 
-	 */
-    private static void printHelp() {
-
-        System.out.println("Available options are : ");
-        System.out.println(" - backup : Perform a backup of files located into the configured backup directory.");
-        System.out.println(" - listJobs : Lists the Glacier jobs currently in execution.");
-        System.out.println(" - vaultInventory : Perform a Vault Inventory and be notified using Amazon SNS.");
 
     }
 

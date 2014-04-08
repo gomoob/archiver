@@ -35,7 +35,7 @@ import com.gomoob.archiver.configuration.store.Store;
  * 
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
-public class InitiateVaultInventoryJobCommand extends AbstractGlacierCommand {
+public class InitiateArchiveRetrievalJobCommand extends AbstractGlacierCommand {
 
     /**
      * {@inheritDoc}
