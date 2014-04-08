@@ -15,7 +15,6 @@
 //@formatter:on
 package com.gomoob.archiver;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -70,9 +69,9 @@ public class ArchiveLocator {
      * @return TODO: A DOCUMENTER
      * @throws IOException TODO: A DOCUMENTER
      */
-    public File locate(CommandLine commandLine) throws IOException {
+    public ArchiveFile locate(CommandLine commandLine) throws IOException {
 
-        File archiveFile = null;
+        ArchiveFile archiveFile = null;
 
         // Providing both the 'a-archive-id' and 'a-archive-file' options is forbidden
         if (commandLine.hasOption("a-archive-id") && commandLine.hasOption("a-archive-file")) {
@@ -124,7 +123,7 @@ public class ArchiveLocator {
         // Build the archive path using an archive file path provided at command line
         else if (commandLine.hasOption("a-archive-file")) {
 
-            archiveFile = new File(commandLine.getOptionValue("a-archive-file"));
+            archiveFile = new ArchiveFile(commandLine.getOptionValue("a-archive-file"));
 
             // The archive file must exist
             if (!archiveFile.exists()) {

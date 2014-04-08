@@ -1,11 +1,11 @@
 package com.gomoob.archiver.glacier.command.multipartupload;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +22,7 @@ import com.amazonaws.services.glacier.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.glacier.model.UploadMultipartPartRequest;
 import com.amazonaws.services.glacier.model.UploadMultipartPartResult;
 import com.amazonaws.util.BinaryUtils;
+import com.gomoob.archiver.ArchiveFile;
 import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
 
 /**
@@ -30,6 +31,11 @@ import com.gomoob.archiver.glacier.command.AbstractGlacierCommand;
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
 public class MultipartUploadCommand extends AbstractGlacierCommand {
+
+    /**
+     * The archive file to upload.
+     */
+    private ArchiveFile archiveFile;
 
     /**
      * The default part size used for multipart uploads (1MB).
@@ -58,30 +64,56 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
             // The upload is performed using the archiver configuration
             if (commandLine.hasOption("a-store-id") || commandLine.hasOption("a-archive-id")) {
 
+                // Gets the archive file to upload
+                this.archiveFile = this.getArchiveFile();
+
+                // Creates the archive dst name
+                String archiveDstName = this.createArchiveDstName(this.archiveFile);
+
+                System.out.println("Destination archive name will be '" + archiveDstName + "'.");
+                
                 //@formatter:off
                 String uploadId = this.initiateMultipartUpload(
-                    "Archive description",
+                    archiveDstName,
                     this.getPartSize()
                 );
 
                 String checksum = this.uploadParts(uploadId);
+                
                  this.completeMultiPartUpload(uploadId, checksum);
                 // @formatter:on
 
             }
 
         } catch (AmazonServiceException e) {
+
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (NoSuchAlgorithmException e) {
+
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (AmazonClientException e) {
+
             // TODO Auto-generated catch block
             e.printStackTrace();
+
         } catch (IOException e) {
+
             // TODO Auto-generated catch block
             e.printStackTrace();
+
+        } finally {
+
+            // If the archive file has to be delete after processing we delete it
+            if (this.archiveFile != null && this.archiveFile.isToBeDeletedAfterProcess()) {
+
+                this.archiveFile.delete();
+
+            }
+
         }
 
     }
@@ -89,14 +121,12 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
     private String completeMultiPartUpload(String uploadId, String checksum) throws NoSuchAlgorithmException,
             IOException {
 
-        File file = this.getArchiveFile();
-
         //@formatter:off
         CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest()
                 .withVaultName(this.getVaultName())
                 .withUploadId(uploadId)
                 .withChecksum(checksum)
-                .withArchiveSize(String.valueOf(file.length()));
+                .withArchiveSize(String.valueOf(this.archiveFile.length()));
         //@formatter:on
 
         CompleteMultipartUploadResult compResult = this.getAmazonGlacierClient().completeMultipartUpload(compRequest);
@@ -142,24 +172,36 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
 
     }
 
+    /**
+     * @param uploadId
+     * @return
+     * @throws AmazonServiceException
+     * @throws NoSuchAlgorithmException
+     * @throws AmazonClientException
+     * @throws IOException
+     */
     private String uploadParts(String uploadId) throws AmazonServiceException, NoSuchAlgorithmException,
             AmazonClientException, IOException {
 
-        int filePosition = 0;
+        // A position or index of the current byte from which one to read data in the archive to upload, the archive
+        // reading end when this position reach the archive file length in bytes.
         long currentPosition = 0;
+
+        // A byte buffer which has a size which is equal to the multipart part size in bytes
         byte[] buffer = new byte[Integer.valueOf(this.getPartSize())];
+
         List<byte[]> binaryChecksums = new LinkedList<byte[]>();
 
-        // Gets the archive file to upload
-        File archivefile = this.getArchiveFile();
+        double percentage = 0.0;
+        int roundedPercentage = 0;
 
-        FileInputStream fileToUpload = new FileInputStream(archivefile);
+        FileInputStream fileToUpload = new FileInputStream(this.archiveFile);
         String contentRange;
         int read = 0;
 
-        while (currentPosition < archivefile.length()) {
+        while (currentPosition < this.archiveFile.length()) {
 
-            read = fileToUpload.read(buffer, filePosition, buffer.length);
+            read = fileToUpload.read(buffer, 0, buffer.length);
 
             if (read == -1) {
                 break;
@@ -188,7 +230,19 @@ public class MultipartUploadCommand extends AbstractGlacierCommand {
             System.out.println("Part uploaded, checksum: " + partResult.getChecksum());
 
             currentPosition = currentPosition + read;
+            
+            // Updates the percentage
+            percentage = (double)currentPosition / (double) this.archiveFile.length() * 100;
+            
+            // If the rounded percentage is greater than the previous rounded percentage we display the updated 
+            // percentage
+            if((int) percentage > roundedPercentage) {
 
+                roundedPercentage = (int) percentage;
+                System.out.println(new Date().toString() + " - " + roundedPercentage + "%");
+                
+            }
+            
         }
         
         fileToUpload.close();

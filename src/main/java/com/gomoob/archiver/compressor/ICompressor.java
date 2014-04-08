@@ -15,9 +15,9 @@
 //@formatter:on
 package com.gomoob.archiver.compressor;
 
-import java.io.File;
 import java.io.IOException;
 
+import com.gomoob.archiver.ArchiveFile;
 import com.gomoob.archiver.configuration.archive.Archive;
 
 /**
@@ -40,6 +40,6 @@ public interface ICompressor {
      *         directory of the file system.
      * @throws IOException If an I/O error occurs while compressing the archive.
      */
-    File compress(Archive archive) throws IOException;
+    ArchiveFile compress(Archive archive) throws IOException;
 
 }

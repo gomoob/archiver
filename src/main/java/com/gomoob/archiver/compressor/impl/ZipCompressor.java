@@ -42,7 +42,7 @@ public class ZipCompressor extends AbstractCompressor {
      * {@inheritDoc}
      */
     @Override
-    protected File doCompress(Archive archive, String[] filePaths) throws IOException {
+    protected ArchiveFile doCompress(Archive archive, String[] filePaths) throws IOException {
 
         // Test if the base directory exists
         File cwdDir = new File(archive.getCwd());
@@ -56,12 +56,12 @@ public class ZipCompressor extends AbstractCompressor {
 
         // Creates a temporary file for the ZIP file to produce
         File tempDirectory = FileUtils.getTempDirectory();
-        File archiveFile = FileUtils.getFile(tempDirectory, UUID.randomUUID().toString());
+        String archiveFilePath = FileUtils.getFile(tempDirectory, UUID.randomUUID().toString()).getAbsolutePath();
         
         // Transforms the archive file into an ArchiveFile instance and sets it to be deleted after processed
-        archiveFile = new ArchiveFile(archiveFile.getAbsolutePath());
-        ((ArchiveFile) archiveFile).setArchive(archive);
-        ((ArchiveFile) archiveFile).setToBeDeletedAfterProcessed(true);
+        ArchiveFile archiveFile = new ArchiveFile(archiveFilePath);
+        archiveFile.setArchive(archive);
+        archiveFile.setToBeDeletedAfterProcessed(true);
         
         // TODO: Créer un fichier temporaire
         ArchiveOutputStream aos = new ZipArchiveOutputStream(archiveFile);

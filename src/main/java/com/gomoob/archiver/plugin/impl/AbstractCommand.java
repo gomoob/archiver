@@ -15,7 +15,6 @@
 //@formatter:on
 package com.gomoob.archiver.plugin.impl;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -27,9 +26,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import com.gomoob.archiver.ArchiveFile;
 import com.gomoob.archiver.configuration.Configuration;
 import com.gomoob.archiver.configuration.credentials.Credentials;
 import com.gomoob.archiver.configuration.store.Store;
+import com.gomoob.archiver.handlebars.ArchiveDstNameBuilder;
 import com.gomoob.archiver.plugin.ICommand;
 import com.gomoob.archiver.plugin.IPlugin;
 
@@ -43,7 +44,7 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
     /**
      * The archive file to upload.
      */
-    private File archiveFile;
+    private ArchiveFile archiveFile;
 
     /**
      * The Command Line which have been created.
@@ -65,6 +66,26 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
      */
     private IPlugin plugin;
 
+    protected String createArchiveDstName(ArchiveFile archiveFile) throws IOException {
+
+        ArchiveDstNameBuilder archiveDstNameBuilder = new ArchiveDstNameBuilder();
+        archiveDstNameBuilder.setArchiveFile(archiveFile);
+        
+        return archiveDstNameBuilder.build();
+        
+    }
+    
+    protected String createArchiveDstName(ArchiveFile archiveFile, String templateString) throws IOException {
+        
+        ArchiveDstNameBuilder archiveDstNameBuilder = new ArchiveDstNameBuilder();
+        archiveDstNameBuilder.setArchiveFile(archiveFile);
+        archiveDstNameBuilder.setTemplateString(templateString);
+
+        return archiveDstNameBuilder.build();
+        
+        
+    }
+    
     /**
      * {@inheritDoc}
      */
@@ -242,7 +263,7 @@ public abstract class AbstractCommand extends AbstractPluginOrCommand implements
      * 
      * @return the archive file.
      */
-    protected File getArchiveFile() {
+    protected ArchiveFile getArchiveFile() {
 
         // If the archive file has not already been located we locate it
         if (this.archiveFile == null) {

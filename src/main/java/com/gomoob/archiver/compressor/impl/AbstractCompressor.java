@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.apache.tools.ant.DirectoryScanner;
 
+import com.gomoob.archiver.ArchiveFile;
 import com.gomoob.archiver.compressor.ICompressor;
 import com.gomoob.archiver.configuration.archive.Archive;
 import com.gomoob.archiver.configuration.archive.Src;
@@ -33,13 +34,13 @@ import com.gomoob.archiver.configuration.archive.Src;
  */
 public abstract class AbstractCompressor implements ICompressor {
 
-    protected abstract File doCompress(Archive archive, String[] filePaths) throws IOException;
+    protected abstract ArchiveFile doCompress(Archive archive, String[] filePaths) throws IOException;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public File compress(Archive archive) throws IOException {
+    public ArchiveFile compress(Archive archive) throws IOException {
 
         // Gets the path to the files to inject into the archive
         String[] filePaths = this.processGlobbingPatterns(archive);

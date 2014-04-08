@@ -2,6 +2,7 @@ package com.gomoob.archiver;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Date;
 
 import com.gomoob.archiver.configuration.archive.Archive;
 
@@ -21,6 +22,14 @@ public class ArchiveFile extends File {
      * The archiver archive which have been used to create this archive file.
      */
     private Archive archive;
+
+    /**
+     * The creation date of the archive file.
+     * <p>
+     * NOTE: This will not be necessary later with Java 1.7 and NIO 2 BasicFileAttributes.
+     * </p>
+     */
+    private Date creationDate = new Date();
 
     /**
      * Boolean which indicate if the archive file has to be deleted after it is processed. Generally an archive file has
@@ -65,13 +74,6 @@ public class ArchiveFile extends File {
         super(pathname);
 
     }
-
-    /*
-     * Note: The two-argument File constructors do not interpret an empty parent abstract pathname as the current user
-     * directory. An empty parent instead causes the child to be resolved against the system-dependent directory defined
-     * by the FileSystem.getDefaultParent method. On Unix this default is "/", while on Microsoft Windows it is "\\".
-     * This is required for compatibility with the original behavior of this class.
-     */
 
     /**
      * Creates a new <code>ArchiveFile</code> instance from a parent pathname string and a child pathname string.
@@ -124,6 +126,13 @@ public class ArchiveFile extends File {
 
     }
 
+    /*
+     * Note: The two-argument File constructors do not interpret an empty parent abstract pathname as the current user
+     * directory. An empty parent instead causes the child to be resolved against the system-dependent directory defined
+     * by the FileSystem.getDefaultParent method. On Unix this default is "/", while on Microsoft Windows it is "\\".
+     * This is required for compatibility with the original behavior of this class.
+     */
+
     /**
      * Gets the archiver archive which have been used to create this archive file.
      * 
@@ -132,6 +141,17 @@ public class ArchiveFile extends File {
     public Archive getArchive() {
 
         return this.archive;
+
+    }
+
+    /**
+     * Gets the creation date of the archive file.
+     * 
+     * @return the creation date of the archive file.
+     */
+    public Date getCreationDate() {
+
+        return this.creationDate;
 
     }
 
@@ -154,6 +174,20 @@ public class ArchiveFile extends File {
     public void setArchive(Archive archive) {
 
         this.archive = archive;
+
+    }
+
+    /**
+     * Sets the creation date of the archive file.
+     * <p>
+     * NOTE: This will not be necessary later with Java 1.7 and NIO 2 BasicFileAttributes.
+     * </p>
+     * 
+     * @param creationDate the creation date of the archive file.
+     */
+    public void setCreationDate(Date creationDate) {
+
+        this.creationDate = creationDate;
 
     }
 
