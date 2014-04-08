@@ -17,6 +17,7 @@ package com.gomoob.archiver.component;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
@@ -28,32 +29,129 @@ import com.gomoob.archiver.compressor.ICompressor;
 import com.gomoob.archiver.compressor.impl.ZipCompressor;
 import com.gomoob.archiver.configuration.Configuration;
 import com.gomoob.archiver.configuration.archive.Type;
+import com.gomoob.archiver.configuration.credentials.Credentials;
+import com.gomoob.archiver.configuration.store.Store;
 
 /**
  * Abstract class common to all the archiver commands.
  * 
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
-public abstract class AbstractCommand implements ICommand {
+public abstract class AbstractCommand extends AbstractPluginOrCommand implements ICommand {
+
+    protected CommandLine commandLine;
 
     /**
-     * The component used to locate and build archive files to managed.
+     * The configured credentials.
      */
-    protected ArchiveLocator archiveLocator;
+    private Credentials credentials;
+    
+    /**
+     * The name of the command.
+     */
+    private String name;
+    
+    /**
+     * The plugin this command is linked to.
+     */
+    private IPlugin plugin;
 
     /**
-     * The configuration which is currently in use.
+     * {@inheritDoc}
      */
-    protected Configuration configuration;
-
+    @Override
+    public String getName() {
+        
+        return this.name;
+        
+    }
+    
     /**
-     * Create a new instance of the {@link AbstractCommand} class.
+     * {@inheritDoc}
      */
-    protected AbstractCommand() {
+    @Override
+    public IPlugin getPlugin() {
+        
+        return this.plugin;
+        
+    }
+    
+    /**
+     * Sets the name of the command.
+     * 
+     * @param name the name of the command.
+     */
+    void setName(String name) {
+        
+        this.name = name;
+        
+    }
+    
+    /**
+     * Sets the plugin this command is linked to.
+     * 
+     * @param plugin the plugin this command is linked to.
+     */
+    void setPlugin(IPlugin plugin) {
+        
+        this.plugin = plugin;
+        
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute(String[] args) throws CommandException {
 
-        this.archiveLocator = new ArchiveLocator();
+        // Backup the command line arguments passed to the command
+        this.args = args;
+
+        // Creates the default options
+        this.options = new Options();
+        this.options.addOption(this.createHelpOption());
+
+        // Configure the available command line options
+        this.doConfigureOptions(this.options);
+
+        // Creates the command line
+        CommandLineParser commandLineParser = new PosixParser();
+
+        try {
+
+            this.commandLine = commandLineParser.parse(this.options, args);
+
+        } catch (ParseException parseException) {
+
+            throw new CommandException("", parseException);
+
+        }
+        
+        // If no arguments are provided or the '--help' option is provided we display the help of the plugin
+        if (args.length == 0 || this.commandLine.hasOption("help")) {
+
+            HelpFormatter helpFormatter = new HelpFormatter();
+
+            //@formatter:off
+            helpFormatter.printHelp(
+                120, 
+                "archiver --" + this.getPlugin().getName() + " --" + this.getName(), 
+                this.doGetHelpHeader(), 
+                this.getOptions(), 
+                this.doGetHelpFooter()
+            );
+            //@formatter:on
+
+            return;
+
+        }
+
+        // Executes the command
+        this.doExecute(commandLine);
 
     }
+
+    protected abstract void doExecute(CommandLine commandLine);
 
     @SuppressWarnings("static-access")
     protected Option createAArchiveIdOption() {
@@ -87,27 +185,29 @@ public abstract class AbstractCommand implements ICommand {
 
     }
 
-    @SuppressWarnings("static-access")
-    protected Option createHelpOption() {
+    protected Store findStoreById(String storeId) {
 
-        //@formatter:off
-        Option helpOption = OptionBuilder
-                .withLongOpt("help")
-                .withDescription("Print this message")
-                .create();
-        //@formatter:on
+        Store store = this.getConfiguration().findStoreById(storeId);
 
-        return helpOption;
+        // The store must have been found
+        if (store == null) {
+
+            throw new IllegalArgumentException("No store having an identifier equal to '" + storeId
+                    + "' has been found !");
+
+        }
+
+        return store;
 
     }
 
-    protected CommandLine commandLine;
+    protected CommandLine getCommandLine() {
 
-    protected CommandLine parseCommandLine(Options options, String[] args) throws ParseException {
+        if (this.commandLine == null) {
 
-        CommandLineParser commandLineParser = new PosixParser();
+            throw new IllegalStateException("No command line has been created !");
 
-        this.commandLine = commandLineParser.parse(options, args);
+        }
 
         return this.commandLine;
 
@@ -132,20 +232,170 @@ public abstract class AbstractCommand implements ICommand {
      * 
      * @return the archiver configuration which is currently in use.
      */
-    public Configuration getConfiguration() {
+    protected Configuration getConfiguration() {
 
         return this.configuration;
 
     }
 
     /**
-     * Sets the archiver configuration to use.
+     * Gets the Credentials which have been configured with the Archiver configuration file or the command line
+     * parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * Credentials which are configured.
+     * </p>
      * 
-     * @param configuration the archiver configuration to use.
+     * @return the configured credentials.
      */
-    public void setConfiguration(Configuration configuration) {
+    protected Credentials getCredentials() {
 
-        this.configuration = configuration;
+        // If the credentials have not been created
+        if (this.credentials == null) {
+
+            this.credentials = new Credentials();
+
+            //@formatter:off
+            
+            // The 'a-credentials-key' option cannot be provided without the 'a-credentials-secret' option
+            if(this.getCommandLine().hasOption("a-credentials-key") && 
+               !this.getCommandLine().hasOption("a-credentials-secret")) {
+                
+                throw new IllegalStateException(
+                    "The 'a-credential-key' option cannot be provided without the 'a-credentials-secret' option !"
+                );
+                
+            }
+            
+            // The 'a-credentials-secret' option cannot be provided without the 'a-credentials-secret' option
+            if(!this.getCommandLine().hasOption("a-credentials-key") &&
+               this.getCommandLine().hasOption("a-credentials-secret")) {
+                
+                throw new IllegalStateException(
+                    "The 'a-credentials-secret' option cannot be provided without the 'a-credentials-key' option !"
+                );
+                
+            }
+            
+            // If the 'a-credentials-key' and 'a-credentials-secret' options are provided they take precendence on all the 
+            // other credentials options provided
+            if(this.getCommandLine().hasOption("a-credentials-key") && 
+               this.getCommandLine().hasOption("a-credentials-secret")) {
+               
+                // If the 'a-credentials-id' option is provided with the 'a-credentials-key' and 'a-credentials-key' options 
+                // then the 'a-credentials-id' option will be ignored.
+                if(this.getCommandLine().hasOption("a-credentials-id")) {
+                    
+                    //@formatter:off
+                    System.out.println(
+                        "NOTE: The provided 'a-credentials-id' option will be ignored because the provided " + 
+                        "'a-credentials-key' and 'a-credentials-secret' options takes precedence !"
+                    );
+                    //@formatter:on
+
+                }
+
+                // Checks if a store id is provided and if credentials are attached to this store
+                if (this.getCommandLine().hasOption("a-store-id")) {
+
+                    Store store = this.getConfiguration().findStoreById(
+                            this.getCommandLine().getOptionValue("a-store-id"));
+
+                    // Credentials have been attached to the store, those credentials will be ignored because the
+                    // 'a-credentials-key' and 'a-credentials-id' options takes precedence
+                    if (store != null && store.getCredentials() != null) {
+
+                        //@formatter:off
+                        System.out.println(
+                            "NOTE: The credentials attached to the store you provide will be ignored because the " + 
+                            "provided 'a-credentials-key' and 'a-credentials-secret' options takes precedence !"
+                        );
+                        //@formatter:on
+
+                    }
+
+                }
+
+                this.credentials.setKey(this.getCommandLine().getOptionValue("a-credentials-key"));
+                this.credentials.setSecret(this.getCommandLine().getOptionValue("a-credentials-value"));
+
+            }
+
+            // If the 'a-credentials-id' option is provided
+            else if (this.getCommandLine().hasOption("a-credentials-id")) {
+
+                // Checks if a store id is provided and if credentials are attached to this store
+                if (this.getCommandLine().hasOption("a-store-id")) {
+
+                    Store store = this.getConfiguration().findStoreById(
+                            this.getCommandLine().getOptionValue("a-store-id"));
+
+                    // Credentials have been attached to the store, those credentials will be ignored because the
+                    // 'a-credentials-key' and 'a-credentials-id' options takes precedence
+                    if (store != null && store.getCredentials() != null) {
+
+                        //@formatter:off
+                        System.out.println(
+                            "NOTE: The credentials attached to the store you provide will be ignored because the " + 
+                            "provided 'a-credentials-key' and 'a-credentials-secret' options takes precedence !"
+                        );
+                        //@formatter:on
+
+                    }
+
+                }
+
+                this.credentials = this.getConfiguration().findCredentialsById(
+                        this.getCommandLine().getOptionValue("a-credentials-id"));
+
+            }
+
+            // Try to get credentials from the configured store
+            else if (this.getCommandLine().hasOption("a-store-id")) {
+
+                Store store = this.getConfiguration().findStoreById(this.getCommandLine().getOptionValue("a-store-id"));
+
+                // No credentials have been attached to the store
+                if (store != null && store.getCredentials() == null) {
+
+                    //@formatter:off
+                    throw new IllegalStateException(
+                        "Impossible to get any credentials from a configuration file or a command line option !"
+                    );
+                    //@formatter:on
+
+                }
+
+                this.credentials = store.getCredentials();
+
+            }
+
+            // Impossible the get credentials
+            else {
+
+                //@formatter:off
+                throw new IllegalStateException(
+                    "Impossible to get any credentials from a configuration file or a command line option !"
+                );
+                //@formatter:on
+
+            }
+
+            // @formatter:on
+
+        }
+
+        return this.credentials;
+
+    }
+
+    protected CommandLine parseCommandLine(Options options, String[] args) throws ParseException {
+
+        CommandLineParser commandLineParser = new PosixParser();
+
+        this.commandLine = commandLineParser.parse(options, args);
+
+        return this.commandLine;
 
     }
 

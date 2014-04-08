@@ -16,19 +16,13 @@
 package com.gomoob.archiver.component.glacier.command.vault;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.json.JSONObject;
 
-import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DescribeVaultRequest;
 import com.amazonaws.services.glacier.model.DescribeVaultResult;
 import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
-import com.gomoob.archiver.component.glacier.configuration.store.GlacierAdditionalConfiguration;
-import com.gomoob.archiver.configuration.store.Store;
 
 /**
  * Command class used to retrieve informations about an Amazon Glacier Vault.
@@ -42,37 +36,33 @@ public class DescribeVaultCommand extends AbstractGlacierCommand {
      * {@inheritDoc}
      */
     @Override
-    public void processCommand(String[] args) {
-
-        Options options = new Options();
+    protected void doConfigureOptions(Options options) {
+        
         options.addOption(this.createHelpOption());
         options.addOption(this.createAStoreIdOption());
 
-        CommandLineParser commandLineParser = new PosixParser();
+    }
 
-        try {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void doExecute(CommandLine commandLine) {
 
-            CommandLine commandLine = commandLineParser.parse(options, args);
+        if (commandLine.getOptions().length == 0
+                || (commandLine.getOptions().length == 1 && commandLine.hasOption("help"))) {
 
-            if (commandLine.getOptions().length == 0
-                    || (commandLine.getOptions().length == 1 && commandLine.hasOption("help"))) {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp("archiver --glacier --describe-vault", this.getOptions());
 
-                HelpFormatter helpFormatter = new HelpFormatter();
-                helpFormatter.printHelp("archiver --glacier --describe-vault", options);
+        }
 
-            }
+        if (!commandLine.hasOption("a-store-id") && !commandLine.hasOption("vault-name")) {
 
-            if (!commandLine.hasOption("a-store-id") && !commandLine.hasOption("vault-name")) {
+        } else if (commandLine.hasOption("a-store-id")) {
 
-            } else if (commandLine.hasOption("a-store-id")) {
+            this.describeVault(commandLine.getOptionValue("a-store-id"));
 
-                this.describeVault(commandLine.getOptionValue("a-store-id"));
-
-            }
-
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
     }
@@ -88,14 +78,8 @@ public class DescribeVaultCommand extends AbstractGlacierCommand {
      */
     private void describeVault(String storeId) {
 
-        Store store = this.configuration.findStoreById(storeId);
-
-        AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(store);
-
-        DescribeVaultRequest describeVaultRequest = new DescribeVaultRequest()
-                .withVaultName(((GlacierAdditionalConfiguration) store.getAdditionalConfiguration()).getVaultName());
-
-        DescribeVaultResult describeVaultResult = amazonGlacierClient.describeVault(describeVaultRequest);
+        DescribeVaultRequest describeVaultRequest = new DescribeVaultRequest().withVaultName(this.getVaultName());
+        DescribeVaultResult describeVaultResult = this.getAmazonGlacierClient().describeVault(describeVaultRequest);
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("CreationDate", describeVaultResult.getCreationDate());

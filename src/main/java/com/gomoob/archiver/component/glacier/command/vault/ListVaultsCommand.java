@@ -18,22 +18,14 @@ package com.gomoob.archiver.component.glacier.command.vault;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DescribeVaultOutput;
 import com.amazonaws.services.glacier.model.ListVaultsRequest;
 import com.amazonaws.services.glacier.model.ListVaultsResult;
 import com.gomoob.archiver.component.glacier.command.AbstractGlacierCommand;
-import com.gomoob.archiver.configuration.credentials.Credentials;
 
 /**
  * Command class used to list vaults owned by the calling user's account.
@@ -46,85 +38,28 @@ public class ListVaultsCommand extends AbstractGlacierCommand {
     /**
      * {@inheritDoc}
      */
-    @SuppressWarnings("static-access")
     @Override
-    public void processCommand(String[] args) {
-
-        // Create the command line options
-        Options options = new Options();
-        
-        //@formatter:off
-        Option awsAccessKeyOption = OptionBuilder
-                .withLongOpt("aws-access-key")
-                .withDescription("The Amazon Web Services account access key.")
-                .hasArg()
-                .withArgName("AWS_ACCESS_KEY")
-                .create();
-        
-        Option awsSecretKeOption = OptionBuilder
-                .withLongOpt("aws-secret-key")
-                .withDescription("The Amazon Web Services account secret key.")
-                .hasArg()
-                .withArgName("AWS_SECRET_KEY")
-                .create();
-        //@formatter:on
+    protected void doConfigureOptions(Options options) {
         
         options.addOption(this.createACredentialsIdOption());
-        options.addOption(awsAccessKeyOption);
-        options.addOption(awsSecretKeOption);
-        options.addOption(this.createHelpOption());
+        
+    }
+    
+    protected String doGetHelpHeader() {
+        
+        return "List all vaults in a specified region.";
+        
+    }
 
-        CommandLineParser commandLineParser = new PosixParser();
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void doExecute(CommandLine commandLine) {
 
-        try {
+        if (commandLine.hasOption("a-credentials-id")) {
 
-            CommandLine commandLine = commandLineParser.parse(options, args);
-
-            if (commandLine.getOptions().length == 0
-                    || (commandLine.getOptions().length == 1 && commandLine.hasOption("help"))) {
-
-                //@formatter:off
-                HelpFormatter helpFormatter = new HelpFormatter();
-                helpFormatter.printHelp(
-                    120, 
-                    "archiver --glacier --list-vaults", 
-                    "\n " + 
-                    "List all vaults in a specified region." + 
-                    "\t\n", 
-                    options, 
-                    ""
-                );
-                //@formatter:on
-
-            }
-
-            // If an archiver credentials is provided then AWS specific options cannot be provided
-            if (commandLine.hasOption("a-credentials-id")
-                    && (commandLine.hasOption("aws-access-key") || commandLine.hasOption("aws-secret-key"))) {
-
-                // TODO: Erreur
-
-            }
-
-            // If the command line uses AWS SDK informations
-            else if (!commandLine.hasOption("a-credentials-id")
-                    && (commandLine.hasOption("aws-access-key") || commandLine.hasOption("aws-secret-key"))) {
-
-                // TODO:
-
-            }
-
-            // If an archiver credentials is provided then we use it
-            else if (commandLine.hasOption("a-credentials-id")) {
-
-                this.listVaultsUsingArchiverParameters(commandLine.getOptionValue("a-credentials-id"));
-
-            }
-
-        } catch (ParseException parseException) {
-
-            // TODO Auto-generated catch block
-            parseException.printStackTrace();
+            this.listVaultsUsingArchiverParameters(commandLine.getOptionValue("a-credentials-id"));
 
         }
 
@@ -141,13 +76,7 @@ public class ListVaultsCommand extends AbstractGlacierCommand {
      */
     private void listVaultsUsingArchiverParameters(String credentialsId) {
 
-        Credentials credentials = this.configuration.findCredentialsById(credentialsId);
-
-        AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(credentials);
-
-        ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
-
-        ListVaultsResult listVaultsResult = amazonGlacierClient.listVaults(listVaultsRequest);
+        ListVaultsResult listVaultsResult = this.getAmazonGlacierClient().listVaults(new ListVaultsRequest());
 
         List<DescribeVaultOutput> vaultList = listVaultsResult.getVaultList();
 

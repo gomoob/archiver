@@ -30,7 +30,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import com.gomoob.archiver.component.glacier.GlacierCommands;
+import com.gomoob.archiver.component.CommandException;
+import com.gomoob.archiver.component.glacier.GlacierPlugin;
 import com.gomoob.archiver.configuration.Configuration;
 import com.gomoob.archiver.configuration.ConfigurationParser;
 
@@ -45,9 +46,10 @@ public class Archiver {
      * Main entry of the GOMOOB AWS Glacier backup tool.
      * 
      * @param args arguments passed to the command line.
+     * @throws CommandException 
      */
     @SuppressWarnings("static-access")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CommandException {
 
         Options options = new Options();
 
@@ -123,16 +125,16 @@ public class Archiver {
                 
                 if (commandLine.hasOption("glacier")) {
 
-                    GlacierCommands glacierComponent = new GlacierCommands();
+                    GlacierPlugin glacierComponent = new GlacierPlugin();
                     glacierComponent.setConfiguration(configuration);
                     
                     if(commandLine.hasOption("a-configuration-file")) {
                     
-                        glacierComponent.processCommand(Arrays.copyOfRange(args, 2, args.length));
+                        glacierComponent.execute(Arrays.copyOfRange(args, 2, args.length));
 
                     } else {
                         
-                        glacierComponent.processCommand(Arrays.copyOfRange(args, 1, args.length));
+                        glacierComponent.execute(Arrays.copyOfRange(args, 1, args.length));
                         
                     }
 

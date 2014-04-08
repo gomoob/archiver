@@ -15,16 +15,15 @@
 //@formatter:on
 package com.gomoob.archiver.component;
 
-
 /**
- * Interface which defines a command to be executed.
+ * Interface which defines an archiving plugin to be executed.
  * <p>
- * A command receives command line arguments.
+ * An archiving plugin receives the following arguments: <verbatim>command_name [command_options...] </verbatim>
  * </p>
  * 
  * @author Baptiste GAILLARD (baptiste.gaillard@gomoob.com)
  */
-public interface ICommand {
+public interface IPlugin {
 
     /**
      * Executes the command with provided command line arguments.
@@ -32,19 +31,12 @@ public interface ICommand {
      * @param args the provided command line arguments.
      */
     void execute(String[] args) throws CommandException;
-    
+
     /**
-     * Gets the name of the command.
+     * Gets the name of the plugin.
      * 
-     * @return the name of the command.
+     * @return the name of the plugin.
      */
     String getName();
-    
-    /**
-     * Gets the plugin this command is linked to.
-     * 
-     * @return the plugin this command is linked to.
-     */
-    IPlugin getPlugin();
-    
+
 }

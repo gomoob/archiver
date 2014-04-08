@@ -31,44 +31,149 @@ import com.gomoob.archiver.configuration.store.Store;
 public abstract class AbstractGlacierCommand extends AbstractCommand {
 
     /**
-     * Utility function used to create an Amazon Glacier Client from credentials.
-     * 
-     * @param credentials the credentials used to create the Amazon Glacier Client.
-     * @return the resulting Amazon Glacier Client.
+     * The configured Amazon Glacier client.
      */
-    protected AmazonGlacierClient createAmazonGlacierClient(Credentials credentials) {
+    private AmazonGlacierClient amazonGlacierClient;
 
-        return new AmazonGlacierClient(this.createAWSCredentials(credentials));
+    /**
+     * The configured AWS credentials.
+     */
+    private AWSCredentials awsCredentials;
+
+    protected Store findAmazonGlacierStoreById(String storeId) {
+
+        // Try to find a store having the specified identifier
+        Store store = this.findStoreById(storeId);
+
+        // The store must be a glacier store
+        if (!store.getType().equals("glacier")) {
+
+            throw new IllegalStateException("The store having an identifier equal to '" + storeId
+                    + "' is not a glacier store !");
+
+        }
+
+        return store;
 
     }
 
     /**
-     * Utility function used to create an Amazon Glacier client from the informations of a store.
+     * Gets the Amazon Glacier Client which have been configured with the Archiver configuration file or the command
+     * line parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * Amazon Glacier store which is configured.
+     * </p>
      * 
-     * @param store the store from which one to get informations to create an Amazon Glacier Client.
-     * @return the resulting Amazon Glacier client.
+     * @return the configured Amazon Glacier Client.
      */
-    protected AmazonGlacierClient createAmazonGlacierClient(Store store) {
+    protected AmazonGlacierClient getAmazonGlacierClient() {
 
-        AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(store.getCredentials());
-        amazonGlacierClient.setEndpoint(((GlacierAdditionalConfiguration) store.getAdditionalConfiguration())
-                .getEndpoint());
+        // If the Amazon Glacier Client has not been created
+        if (this.amazonGlacierClient == null) {
 
-        return amazonGlacierClient;
+            this.amazonGlacierClient = new AmazonGlacierClient(this.getAWSCredentials());
+            this.amazonGlacierClient.setEndpoint(this.getEndpoint());
+
+        }
+
+        return this.amazonGlacierClient;
 
     }
-    
+
     /**
-     * Utility function used to create AWS Credentials from credentials.
+     * Gets the Amazon AWS Credentials which have been configured with the Archiver configuration file or the command
+     * line parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * AWS Credentials.
+     * </p>
      * 
-     * @param credentials the credentials used to create the AWS credentials.
-     * 
-     * @return the resulting AWS credentials.
+     * @return the configured AWS Credentials.
      */
-    protected AWSCredentials createAWSCredentials(Credentials credentials) {
+    protected AWSCredentials getAWSCredentials() {
+
+        // The AWS credentials have not been created
+        if (this.awsCredentials == null) {
+
+            // Gets the generic credentials
+            Credentials credentials = this.getCredentials();
+
+            this.awsCredentials = new BasicAWSCredentials(credentials.getKey(), credentials.getSecret());
+
+        }
+
+        return this.awsCredentials;
+
+    }
+
+    /**
+     * Gets the Amazon Glacier Store which have been configured with the Archiver configuration file or the command line
+     * parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * Amazon Glacier store which is configured.
+     * </p>
+     * 
+     * @return the configured Amazon Glacier Store.
+     */
+    protected Store getAmazonGlacierStore() {
+
+        return this.findAmazonGlacierStoreById(this.getCommandLine().getOptionValue("a-store-id"));
+
+    }
+
+    /**
+     * Gets the Amazon Glacier Endpoint which have been configured with the Archiver configuration file or the command
+     * line parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * Amazon Glacier vault wich is configured.
+     * </p>
+     * <p>
+     * NOTE: This function can return a <code>null</code> value, in this case the default Amazon Glacier Endpoint
+     * "glacier.us-east-1.amazonaws.com" will be used.
+     * </p>
+     * 
+     * @return the configured Amazon Glacier Endpoint or <code>null</code>.
+     */
+    protected String getEndpoint() {
+
+        // The default Amazon Glacier endpoint (this is taken from the AmazonGlacierClient class and is the default
+        // provided by the Amazon AWS SDK)
+        String endpoint = "glacier.us-east-1.amazonaws.com";
+
+        if (this.commandLine.hasOption("a-store-id")) {
+
+            // Gets the configured Amazon Glacier Endpoint
+            Store store = this.getAmazonGlacierStore();
+
+            endpoint = ((GlacierAdditionalConfiguration) store.getAdditionalConfiguration()).getEndpoint();
+
+        }
         
-        return new BasicAWSCredentials(credentials.getKey(), credentials.getSecret());
-        
+
+        return endpoint;
+
+    }
+
+    /**
+     * Gets the Amazon Glacier Vault name which have been configured with the Archiver configuration file or the command
+     * line parameters.
+     * <p>
+     * This function scans the Archiver configuration file and the command line arguments to automatically create the
+     * Amazon Glacier vault name which is configured.
+     * </p>
+     * 
+     * @return the configured Amazon Glacier Vault Name.
+     */
+    protected String getVaultName() {
+
+        // Gets the configured Amazon Glacier Endpoint
+        Store store = this.getAmazonGlacierStore();
+
+        return ((GlacierAdditionalConfiguration) store.getAdditionalConfiguration()).getVaultName();
+
     }
 
 }

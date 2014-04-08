@@ -27,6 +27,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
+import com.gomoob.archiver.ArchiveFile;
 import com.gomoob.archiver.configuration.archive.Archive;
 
 /**
@@ -55,7 +56,12 @@ public class ZipCompressor extends AbstractCompressor {
         // Creates a temporary file for the ZIP file to produce
         File tempDirectory = FileUtils.getTempDirectory();
         File archiveFile = FileUtils.getFile(tempDirectory, UUID.randomUUID().toString());
-
+        
+        // Transforms the archive file into an ArchiveFile instance and sets it to be deleted after processed
+        archiveFile = new ArchiveFile(archiveFile.getAbsolutePath());
+        ((ArchiveFile) archiveFile).setArchive(archive);
+        ((ArchiveFile) archiveFile).setToBeDeletedAfterProcessed(true);
+        
         // TODO: Créer un fichier temporaire
         ArchiveOutputStream aos = new ZipArchiveOutputStream(archiveFile);
 

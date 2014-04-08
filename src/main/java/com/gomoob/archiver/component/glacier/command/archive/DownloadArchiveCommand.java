@@ -19,13 +19,10 @@ import java.io.File;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
@@ -44,9 +41,7 @@ public class DownloadArchiveCommand extends AbstractGlacierCommand {
      */
     @SuppressWarnings("static-access")
     @Override
-    public void processCommand(String[] args) {
-
-        Options options = new Options();
+    protected void doConfigureOptions(Options options) {
 
         //@formatter:off
         Option glacierarchiveidOption = OptionBuilder
@@ -64,40 +59,35 @@ public class DownloadArchiveCommand extends AbstractGlacierCommand {
                 .create();
         //@formatter:on
 
-        
         options.addOption(this.createAStoreIdOption());
-        options.addOption(this.createHelpOption());
         options.addOption(glacierarchiveidOption);
         options.addOption(outputOption);
 
-        CommandLineParser commandLineParser = new PosixParser();
+    }
 
-        try {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void doExecute(CommandLine commandLine) {
 
-            CommandLine commandLine = commandLineParser.parse(options, args);
+        if (commandLine.getOptions().length == 1 && commandLine.hasOption("help")) {
 
-            if (commandLine.getOptions().length == 1 && commandLine.hasOption("help")) {
+            HelpFormatter helpFormatter = new HelpFormatter();
+            helpFormatter.printHelp("garchive -glacier -download", this.getOptions());
 
-                HelpFormatter helpFormatter = new HelpFormatter();
-                helpFormatter.printHelp("garchive -glacier -download", options);
+        }
 
-            }
+        if (!commandLine.hasOption("store")) {
 
-            if (!commandLine.hasOption("store")) {
+        }
 
-            }
+        if (!commandLine.hasOption("glacierarchiveid")) {
 
-            if (!commandLine.hasOption("glacierarchiveid")) {
+        }
 
-            }
+        if (!commandLine.hasOption("output")) {
 
-            if (!commandLine.hasOption("output")) {
-
-            }
-
-        } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
     }
