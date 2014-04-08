@@ -33,7 +33,7 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
     public void processCommand(String[] args) {
 
         Options options = new Options();
-        
+
         //@formatter:off
         Option jobIdOption = OptionBuilder
                 .withLongOpt("job-id")
@@ -76,27 +76,48 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
 
             } else if (commandLine.hasOption("a-store-id")) {
 
+                // Check if the required 'job-id' option is provided
+                if (!commandLine.hasOption("job-id")) {
+
+                    throw new IllegalArgumentException(
+                            "You must provide an Amazon Glacier JobId with the 'job-id' option !");
+
+                }
+
+                // Try to get a configured store using the provided 'a-store-id'
                 Store store = this.configuration.findStoreById(commandLine.getOptionValue("a-store-id"));
-                GlacierAdditionalConfiguration gac = (GlacierAdditionalConfiguration) store
-                        .getAdditionalConfiguration();
+
+                if (store == null) {
+
+                    throw new IllegalArgumentException("No store having an identifier equal to '"
+                            + commandLine.getOptionValue("a-store-id") + "' has been found !");
+
+                }
+
+                GlacierAdditionalConfiguration gac = (GlacierAdditionalConfiguration) store.getAdditionalConfiguration();
 
                 AmazonGlacierClient amazonGlacierClient = this.createAmazonGlacierClient(store);
 
                 GetJobOutputRequest jobOutputRequest = new GetJobOutputRequest();
                 jobOutputRequest.setVaultName(gac.getVaultName());
+                jobOutputRequest.setJobId(commandLine.getOptionValue("job-id"));
 
-                // TODO: Récupérer le paramètre de range
-                // jobOutputRequest.setRange(range);
+                if(commandLine.hasOption("range")) {
+                    
+                    jobOutputRequest.setRange(commandLine.getOptionValue("range"));
+                    
+                }
 
-                // TODO: Récupérer l'ID du job
-                // jobOutputRequest.setJobId(args[1]);
-
+                // TODO: On devrait vérifier que si le job est un inventaire ou une archive et interdire la sortie 
+                //       console dans le cas d'une archive
                 GetJobOutputResult jobOutputResult = amazonGlacierClient.getJobOutput(jobOutputRequest);
-                OutputStream fos = null;
+                OutputStream fos = System.out;
                 InputStream jis = null;
 
                 try {
-                    fos = new FileOutputStream(new File("jobOutput.txt"));
+                    
+                    // fos = new FileOutputStream(new File("jobOutput.txt"));
+                    
                     jis = jobOutputResult.getBody();
 
                     byte[] buffer = new byte[1024];

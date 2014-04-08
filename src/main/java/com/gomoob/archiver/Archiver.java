@@ -3,6 +3,8 @@
  */
 package com.gomoob.archiver;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -38,17 +40,25 @@ public class Archiver {
         Options options = new Options();
 
         //@formatter:off
+        Option aConfigurationFile = OptionBuilder
+                .withLongOpt("a-configuration-file")
+                .withDescription("Path to a custom archiver configuration file.")
+                .hasArg()
+                .withArgName("FILE_PATH")
+                .create();
+        
         Option glacierOption = OptionBuilder
                 .withLongOpt("glacier")
-                .withDescription("glacier archiving components.")
+                .withDescription("Amazon Glacier archiving commands.")
                 .create();
         
         Option helpOption = OptionBuilder
                 .withLongOpt("help")
-                .withDescription("print this message.")
+                .withDescription("Print this message.")
                 .create();
         //@formatter:on
 
+        options.addOption(aConfigurationFile);
         options.addOption(glacierOption);
         options.addOption(helpOption);
         
@@ -60,7 +70,7 @@ public class Archiver {
             
             if(args.length > 0) {
                 
-                firstArgs = Arrays.copyOfRange(args, 0, 1);
+                firstArgs = Arrays.copyOfRange(args, 0, 2);
                 
             }
 
@@ -70,22 +80,51 @@ public class Archiver {
                     || (commandLine.getOptions().length == 1 && commandLine.hasOption("help"))) {
 
                 HelpFormatter helpFormatter = new HelpFormatter();
-                helpFormatter.printHelp("archiver", options);
+                helpFormatter.printHelp(120, "archiver", "", options, "");
 
             }
 
             else {
 
                 ConfigurationParser configurationParser = new ConfigurationParser();
-                InputStream configurationStream = Archiver.class.getResourceAsStream("/configuration.json");
+                InputStream configurationStream = null;
+                
+                // Loads a custom archiver configuration file
+                if(commandLine.hasOption("a-configuration-file")) {
+                    
+                    configurationStream = new FileInputStream(new File(commandLine.getOptionValue("a-configuration-file")));
+                    
+                } 
+                
+                // Loads the default configuration file
+                else {
+                
+                    configurationStream = Archiver.class.getResourceAsStream("/configuration.json");
+                    
+                }
+                
                 Configuration configuration = configurationParser.parse(configurationStream);
-
+                
                 if (commandLine.hasOption("glacier")) {
 
                     GlacierCommands glacierComponent = new GlacierCommands();
                     glacierComponent.setConfiguration(configuration);
-                    glacierComponent.processCommand(Arrays.copyOfRange(args, 1, args.length));
+                    
+                    if(commandLine.hasOption("a-configuration-file")) {
+                    
+                        glacierComponent.processCommand(Arrays.copyOfRange(args, 2, args.length));
 
+                    } else {
+                        
+                        glacierComponent.processCommand(Arrays.copyOfRange(args, 1, args.length));
+                        
+                    }
+
+                } else {
+                    
+                    HelpFormatter helpFormatter = new HelpFormatter();
+                    helpFormatter.printHelp(120, "archiver", "", options, "");
+                    
                 }
 
             }
