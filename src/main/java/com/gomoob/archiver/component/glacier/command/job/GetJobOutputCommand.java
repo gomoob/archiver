@@ -1,5 +1,6 @@
 package com.gomoob.archiver.component.glacier.command.job;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,6 +16,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.json.JSONObject;
 
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.GetJobOutputRequest;
@@ -111,7 +113,7 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
                 // TODO: On devrait vérifier que si le job est un inventaire ou une archive et interdire la sortie 
                 //       console dans le cas d'une archive
                 GetJobOutputResult jobOutputResult = amazonGlacierClient.getJobOutput(jobOutputRequest);
-                OutputStream fos = System.out;
+                OutputStream baos = new ByteArrayOutputStream();
                 InputStream jis = null;
 
                 try {
@@ -125,7 +127,7 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
 
                     while ((len = jis.read(buffer)) != -1) {
 
-                        fos.write(buffer, 0, len);
+                        baos.write(buffer, 0, len);
                     }
 
                 } catch (FileNotFoundException e) {
@@ -140,11 +142,11 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
 
                 } finally {
 
-                    if (fos != null) {
+                    if (baos != null) {
 
                         try {
 
-                            fos.close();
+                            baos.close();
 
                         } catch (IOException e) {
 
@@ -171,6 +173,9 @@ public class GetJobOutputCommand extends AbstractGlacierCommand {
                     }
 
                 }
+                
+                JSONObject jsonObject = new JSONObject(baos.toString());
+                System.out.println(jsonObject.toString(2));
 
             }
 

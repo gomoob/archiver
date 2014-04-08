@@ -47,11 +47,11 @@ public class DescribeVaultCommand extends AbstractGlacierCommand {
 
             }
 
-            if (!commandLine.hasOption("a-store") && !commandLine.hasOption("vault-name")) {
+            if (!commandLine.hasOption("a-store-id") && !commandLine.hasOption("vault-name")) {
 
-            } else if (commandLine.hasOption("a-store")) {
+            } else if (commandLine.hasOption("a-store-id")) {
 
-                this.describeVault(commandLine.getOptionValue("a-store"));
+                this.describeVault(commandLine.getOptionValue("a-store-id"));
 
             }
 

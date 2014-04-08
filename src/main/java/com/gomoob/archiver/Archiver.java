@@ -68,7 +68,11 @@ public class Archiver {
             
             String[] firstArgs = new String[] {};
             
-            if(args.length > 0) {
+            if(args.length == 1) {
+                
+                firstArgs = Arrays.copyOfRange(args, 0, 1);
+                
+            } else if(args.length > 1) {
                 
                 firstArgs = Arrays.copyOfRange(args, 0, 2);
                 
