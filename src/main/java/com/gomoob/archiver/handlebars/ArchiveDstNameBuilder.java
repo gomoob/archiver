@@ -30,9 +30,10 @@ public class ArchiveDstNameBuilder {
 
     public String build() throws IOException {
 
+        // An archive file must have been defined
         if (this.archiveFile == null) {
 
-            // TODO: Exception
+            throw new IllegalStateException("No archive file has been defined !");
             
         }
         
@@ -54,7 +55,7 @@ public class ArchiveDstNameBuilder {
         context.data("archiveFile.created", this.archiveFile.getCreationDate().getTime());
         context.data("archiveFile.creationDate", this.archiveFile.getCreationDate());
 
-        String dstName = this.archiveFile.getAbsolutePath();
+        String dstName = this.archiveFile.getName();
 
         // Try to generate an archive destination name using the archive 'dst'
         if (archive != null && archive.getDst() != null) {
