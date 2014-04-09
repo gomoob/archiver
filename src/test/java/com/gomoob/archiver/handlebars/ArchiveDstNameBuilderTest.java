@@ -2,11 +2,6 @@ package com.gomoob.archiver.handlebars;
 
 import static org.fest.assertions.Assertions.assertThat;
 
-import java.io.File;
-import java.text.DateFormat;
-
-import javax.swing.text.DateFormatter;
-
 import org.junit.Test;
 
 import com.gomoob.archiver.ArchiveFile;
