@@ -31,7 +31,7 @@
 	        <directory>src/main/resources/</directory>
 	        <outputDirectory>conf</outputDirectory>
 	        <includes>
-	            <include>configuration.json</include>
+	            <include>archiver.json</include>
 	        </includes>
 	    </fileSet>
 	    <fileSet>
